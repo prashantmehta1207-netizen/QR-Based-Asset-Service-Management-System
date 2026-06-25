@@ -17,7 +17,7 @@
 
                 <div>
                     <h1>Akshaya Patra Complaint Portal</h1>
-                    <p>Submit, track and manage employee complaints professionally.</p>
+                    <p>Submit, track and manage complaints professionally.</p>
                 </div>
             </div>
 
@@ -45,48 +45,55 @@
             <form id="complaintForm">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="employeeName">Employee Name</label>
+                        <label for="userName">User Name <span>*</span></label>
                         <div class="field-control">
                             <i data-lucide="user"></i>
-                            <input type="text" id="employeeName" name="employeeName" placeholder="Enter employee name"
-                                required />
+                            <input type="text" id="userName" name="userName" placeholder="Enter user name" required />
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="employeeId">Employee ID</label>
+                        <label for="phone">Phone Number <span>*</span></label>
                         <div class="field-control">
-                            <i data-lucide="id-card"></i>
-                            <input type="text" id="employeeId" name="employeeId" placeholder="Enter employee ID"
-                                required />
+                            <i data-lucide="phone"></i>
+                            <input type="tel" id="phone" name="phone" placeholder="Enter phone number" required />
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="department">Department</label>
+                    <!-- <div class="form-group">
+                        <label for="department">Department <span>*</span></label>
                         <div class="field-control">
                             <i data-lucide="building-2"></i>
                             <input type="text" id="department" name="department" placeholder="Enter department"
                                 required />
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="form-group">
-                        <label for="category">Complaint Category</label>
-                        <select id="category" name="category" required>
-                            <option value="">Select category</option>
-                            <option>Electrical</option>
-                            <option>AC</option>
-                            <option>Computer</option>
-                            <option>Food</option>
-                            <option>Cleaning</option>
-                            <option>Security</option>
-                            <option>Maintenance</option>
-                        </select>
+                        <label for="category">Department<span>*</span></label>
+                        <div class="field-control select-control">
+                            <i data-lucide="panel-top"></i>
+                            <select id="category" name="category" required>
+                                <option value="">Select category</option>
+                                <option>Electrical</option>
+                                <option>IT</option>
+                                <option>Kitchen/Production</option>
+                                <option>Maintenance</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group full">
-                        <label for="title">Complaint Title</label>
+                        <label for="email">Email ID <span>*</span></label>
+                        <div class="field-control">
+                            <i data-lucide="mail"></i>
+                            <input type="email" id="email" name="email" placeholder="Enter email address" required />
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="title">Complaint Title <span>*</span></label>
                         <div class="field-control">
                             <i data-lucide="message-square-text"></i>
                             <input type="text" id="title" name="title" placeholder="Short complaint title" required />
@@ -94,39 +101,34 @@
                     </div>
 
                     <div class="form-group full">
-                        <label for="description">Complaint Description</label>
+                        <label for="description">Complaint Description <small>(Optional)</small></label>
                         <div class="field-control textarea-control">
                             <i data-lucide="clipboard-list"></i>
-                            <textarea id="description" name="description" rows="5" placeholder="Write complaint details"
-                                required></textarea>
+                            <textarea id="description" name="description" rows="4"
+                                placeholder="Write complaint details (optional)"></textarea>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="location">Location</label>
-                        <div class="field-control">
-                            <i data-lucide="map-pin"></i>
-                            <input type="text" id="location" name="location" placeholder="Office, floor or room number"
-                                required />
+                    <div class="form-group upload-group">
+                        <label for="photo">Upload Photo <small>(Optional)</small></label>
+                        <div class="field-control file-control">
+                            <i data-lucide="image"></i>
+                            <input type="file" id="photo" name="photo" accept="image/*" />
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="photo">Upload Photo</label>
-                        <input type="file" id="photo" name="photo" accept="image/*" />
                     </div>
 
                     <div class="form-group full">
-                        <label>Priority</label>
+                        <label>Priority <span>*</span></label>
+
                         <div class="priority-box">
                             <input type="radio" id="low" name="priority" value="Low" required />
-                            <label for="low"><span class="dot green"></span>Low</label>
+                            <label for="low"><span class="ring green"></span>Low</label>
 
                             <input type="radio" id="medium" name="priority" value="Medium" />
-                            <label for="medium"><span class="dot yellow"></span>Medium</label>
+                            <label for="medium"><span class="ring yellow"></span>Medium</label>
 
                             <input type="radio" id="high" name="priority" value="High" />
-                            <label for="high"><span class="dot red"></span>High</label>
+                            <label for="high"><span class="ring red"></span>High</label>
                         </div>
                     </div>
                 </div>
@@ -243,7 +245,6 @@
                 ticket: "AKP-" + Date.now().toString().slice(-6),
                 title: data.get("title"),
                 category: data.get("category"),
-                location: data.get("location"),
                 priority: data.get("priority"),
                 status: "Pending"
             };
@@ -274,7 +275,6 @@
           <h4>${item.title}</h4>
           <p><b>Ticket:</b> ${item.ticket}</p>
           <p><b>Category:</b> ${item.category}</p>
-          <p><b>Location:</b> ${item.location}</p>
           <span class="tag">${item.priority} Priority</span>
         `;
 
