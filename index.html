@@ -17,19 +17,19 @@
 
         body {
             min-height: 100vh;
-            background: #ffffff;
+            background: #fbfbf8; /* થોડો સોફ્ટ કલર આપ્યો જેથી પ્રીમિયમ લુક આવે */
             color: #111111;
             padding: 26px;
         }
 
         .page {
-            max-width: 1500px;
+            max-width: 1000px; /* ટેબલ મોટું ન થઈ જાય એટલે સાઈઝ થોડી લિમિટ કરી */
             margin: auto;
         }
 
         .topbar {
             display: grid;
-            grid-template-columns: 350px 1fr 520px;
+            grid-template-columns: 250px 1fr 380px; /* સાઈઝ વ્યવસ્થિત કરી */
             align-items: center;
             gap: 24px;
             padding-bottom: 20px;
@@ -37,7 +37,7 @@
         }
 
         .logo {
-            width: 300px;
+            width: 220px;
             height: auto;
         }
 
@@ -46,7 +46,7 @@
         }
 
         .title h1 {
-            font-size: 50px;
+            font-size: 36px; /* કમ્પ્યુટર માટે યોગ્ય સાઈઝ */
             color: #0f7a35;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -55,18 +55,18 @@
         .actions {
             display: flex;
             justify-content: flex-end;
-            gap: 24px;
+            gap: 16px;
         }
 
         .pill {
-            min-height: 60px;
+            min-height: 50px;
             border-radius: 9px;
-            padding: 0 28px;
-            font-size: 22px;
+            padding: 0 20px;
+            font-size: 18px;
             font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
             white-space: nowrap;
         }
 
@@ -83,31 +83,30 @@
         }
 
         .dot {
-            width: 16px;
-            height: 16px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: #0f7a35;
             display: inline-block;
         }
 
         .content {
-            display: grid;
-            grid-template-columns: 0.92fr 1.12fr;
-            gap: 34px;
-            padding: 32px 18px 30px;
+            /* ફોટો કાઢી નાખ્યો એટલે સિંગલ કોલમ કરી દીધું જેથી ટેબલ મસ્ત દેખાય */
+            display: block; 
+            padding: 32px 0;
             border-bottom: 2px solid #0f7a35;
         }
 
         .section-title {
             display: flex;
             align-items: center;
-            gap: 22px;
-            margin-bottom: 14px;
+            gap: 18px;
+            margin-bottom: 20px;
         }
 
         .circle-icon {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: #0f7a35;
             color: #ffffff;
@@ -116,28 +115,30 @@
         }
 
         .circle-icon svg {
-            width: 34px;
-            height: 34px;
+            width: 26px;
+            height: 26px;
         }
 
         .section-title h2 {
-            font-size: 32px;
+            font-size: 26px;
             color: #111111;
         }
 
         .details-table {
+            background: #ffffff; /* ટેબલ નો બેકગ્રાઉન્ડ વ્હાઇટ કર્યો */
             border: 1px solid #d7d7d7;
             border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .row {
             display: grid;
-            grid-template-columns: 1.35fr 30px 1fr;
-            min-height: 58px;
+            grid-template-columns: 1.5fr 30px 2fr;
+            min-height: 54px;
             align-items: center;
-            border-bottom: 1px solid #d7d7d7;
-            font-size: 22px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 18px;
         }
 
         .row:last-child {
@@ -147,11 +148,13 @@
         .label {
             font-weight: 800;
             padding-left: 24px;
+            color: #4b5563;
         }
 
         .colon {
             text-align: center;
             font-weight: 700;
+            color: #9ca3af;
         }
 
         .value {
@@ -165,56 +168,47 @@
             text-transform: uppercase;
         }
 
-        /* .asset-photo {
-            height: 630px;
-            border-radius: 10px;
-            overflow: hidden;
-            background: #f3f4f6;
-        } */
-
-        /* .asset-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        } */
-
         .bottom {
-            padding-top: 20px;
+            padding-top: 30px;
             text-align: center;
         }
 
         .raise-btn {
-            width: 560px;
-            max-width: 100%;
+            width: 100%;
+            max-width: 500px;
             border: none;
             border-radius: 8px;
-            background: linear-gradient(135deg, #0f7a35, #064d23);
+            background: linear-gradient(135deg, #22c55e, #0f7a35); /* થોડો બ્રાઈટ કલર કર્યો જેથી બટન ઉઠાવ આપે */
             color: #ffffff;
-            padding: 18px 28px;
-            font-size: 29px;
+            padding: 16px 28px;
+            font-size: 24px;
             font-weight: 900;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 18px;
-            box-shadow: 0 8px 20px rgba(15, 122, 53, 0.25);
+            gap: 14px;
+            box-shadow: 0 8px 20px rgba(15, 122, 53, 0.3);
+            transition: 0.2s;
+        }
+
+        .raise-btn:hover {
+            transform: translateY(-2px);
         }
 
         .note {
-            margin-top: 18px;
+            margin-top: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 14px;
-            font-size: 23px;
-            color: #111111;
+            gap: 10px;
+            font-size: 18px;
+            color: #4b5563;
         }
 
         .note-icon {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             background: #0f7a35;
             color: #ffffff;
@@ -223,11 +217,18 @@
             flex-shrink: 0;
         }
 
-        .note strong {
-            margin-right: 4px;
+        .note-icon svg {
+            width: 14px;
+            height: 14px;
         }
 
-        @media (max-width: 1000px) {
+        .note strong {
+            margin-right: 4px;
+            color: #111111;
+        }
+
+        /* મોબાઈલ માટે પર્ફેક્ટ રેસ્પોન્સિવ સેટિંગ્સ */
+        @media (max-width: 900px) {
             body {
                 padding: 16px;
             }
@@ -235,36 +236,44 @@
             .topbar {
                 grid-template-columns: 1fr;
                 text-align: center;
+                gap: 16px;
             }
 
             .logo {
                 margin: auto;
+                width: 180px;
+            }
+
+            .title h1 {
+                font-size: 28px;
             }
 
             .actions {
                 justify-content: center;
-                flex-wrap: wrap;
             }
 
-            .content {
-                grid-template-columns: 1fr;
-            }
-
-            .asset-photo {
-                height: 360px;
-            }
-
-            .title h1 {
-                font-size: 36px;
+            .pill {
+                min-height: 44px;
+                font-size: 15px;
+                padding: 0 14px;
             }
 
             .row {
-                font-size: 18px;
+                font-size: 16px;
+                grid-template-columns: 1.2fr 20px 1.5fr;
+                padding: 8px 0;
+            }
+            
+            .label { padding-left: 12px; }
+            .value { padding-left: 10px; }
+
+            .raise-btn {
+                font-size: 20px;
+                padding: 14px 20px;
             }
 
             .note {
-                align-items: flex-start;
-                font-size: 18px;
+                font-size: 15px;
             }
         }
     </style>
@@ -298,7 +307,6 @@
                     <div class="circle-icon">
                         <i data-lucide="clipboard-list"></i>
                     </div>
-
                     <h2>Equipment Information</h2>
                 </div>
 
@@ -364,10 +372,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="asset-photo">
-                <!-- <img src="ac.png" alt="Air Conditioner" /> -->
-            </div>
         </section>
 
         <section class="bottom">
@@ -380,8 +384,7 @@
                 <span class="note-icon">
                     <i data-lucide="info"></i>
                 </span>
-                <strong>Note:</strong>
-                If you are facing any issue with this equipment, please raise a complaint.
+                <span><strong>Note:</strong> If you are facing any issue with this equipment, please raise a complaint.</span>
             </p>
         </section>
     </main>
