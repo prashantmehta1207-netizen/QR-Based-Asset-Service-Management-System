@@ -287,7 +287,7 @@
             max-width: 100%;
             margin: auto;
             background: #dff3df;
-            color: #113c1f;
+            color: #9b0a0a;
             padding: 9px 18px;
             border-radius: 22px;
             display: flex;
@@ -352,96 +352,52 @@
 <body>
     <header class="topbar">
         <img src="logo.png" alt="Akshaya Patra Logo" class="logo" />
-
         <div class="top-actions">
-            <div class="pill">
-                <span class="green-dot"></span>
-                WORKING
-            </div>
-
-            <div class="pill">
-                <i data-lucide="tag"></i>
-                ASSET ID : AC001
-            </div>
+            <div class="pill"><span class="green-dot"></span>WORKING</div>
+            <div class="pill"><i data-lucide="tag"></i>ASSET ID : AC001</div>
         </div>
     </header>
 
     <main class="center">
         <div class="success-graphic">
-            <span class="confetti c1"></span>
-            <span class="confetti circle c2"></span>
-            <span class="confetti c3"></span>
-            <span class="confetti circle c4"></span>
-            <span class="confetti c5"></span>
-            <span class="confetti circle c6"></span>
-            <span class="confetti circle c7"></span>
-            <span class="confetti c8"></span>
-
-            <div class="check-circle">
-                <i data-lucide="check"></i>
-            </div>
+            <span class="confetti c1"></span><span class="confetti circle c2"></span>
+            <span class="confetti c3"></span><span class="confetti circle c4"></span>
+            <span class="confetti c5"></span><span class="confetti circle c6"></span>
+            <span class="confetti circle c7"></span><span class="confetti c8"></span>
+            <div class="check-circle"><i data-lucide="check"></i></div>
         </div>
 
         <h1>Complaint Submitted Successfully!</h1>
         <div class="dots">...</div>
-
-        <p class="subtitle">
-            Thank you for reporting the issue. Our team will review it and take necessary action.
-        </p>
+        <p class="subtitle">Thank you for reporting the issue. Our team will review it and take necessary action.</p>
 
         <div class="id-card">
-            <div class="id-icon">
-                <i data-lucide="clipboard-list"></i>
-            </div>
-
+            <div class="id-icon"><i data-lucide="clipboard-list"></i></div>
             <div class="id-label">Complaint ID:</div>
-            <div class="id-value">CMP2025001</div>
+            <div class="id-value">CMP001</div>
         </div>
 
         <div class="info-row">
             <div class="info-item">
-                <div class="info-icon">
-                    <i data-lucide="calendar-days"></i>
-                </div>
-
-                <div>
-                    <small>Date & Time</small>
-                    <strong>16 May 2025, 11:30 AM</strong>
-                </div>
+                <div class="info-icon"><i data-lucide="calendar-days"></i></div>
+                <div><small>Date & Time</small><strong>16 May 2025, 11:30 AM</strong></div>
             </div>
-
             <div class="info-item">
-                <div class="info-icon">
-                    <i data-lucide="shield-check"></i>
-                </div>
-
-                <div>
-                    <small>Status</small>
-                    <strong>Registered</strong>
-                </div>
+                <div class="info-icon"><i data-lucide="shield-check"></i></div>
+                <div><small>Status</small><strong>Registered</strong></div>
             </div>
-
             <div class="info-item">
-                <div class="info-icon">
-                    <i data-lucide="clock"></i>
-                </div>
-
-                <div>
-                    <small>Estimated Response</small>
-                    <strong>Within 24-48 Hours</strong>
-                </div>
+                <div class="info-icon"><i data-lucide="clock"></i></div>
+                <div><small>Estimated Response</small><strong>Within 24-72 Hours</strong></div>
             </div>
         </div>
 
         <div class="buttons">
-            <a href="#" class="btn track">
-                <i data-lucide="search"></i>
-                TRACK COMPLAINT
+            <a href="track-complaint.html" class="btn track">
+                <i data-lucide="search"></i> TRACK COMPLAINT
             </a>
-
             <a href="index.html" class="btn home">
-                <i data-lucide="home"></i>
-                BACK TO HOME
+                <i data-lucide="home"></i> BACK TO HOME
             </a>
         </div>
 
@@ -454,6 +410,8 @@
 
     <script>
         lucide.createIcons();
+        // આ બ્રાઉઝરમાં Complaint ID સેવ કરી દેશે
+        localStorage.setItem("myComplaintID", "CMP001");
     </script>
 </body>
 
