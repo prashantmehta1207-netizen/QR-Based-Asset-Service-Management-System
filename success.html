@@ -195,7 +195,7 @@
         }
 
         .id-value {
-            font-size: 30px;
+            font-size: 24px;
             font-weight: 900;
             letter-spacing: 1px;
         }
@@ -374,13 +374,14 @@
         <div class="id-card">
             <div class="id-icon"><i data-lucide="clipboard-list"></i></div>
             <div class="id-label">Complaint ID:</div>
-            <div class="id-value">CMP001</div>
+            <!-- Added ID attribute to dynamically update the value via JavaScript -->
+            <div class="id-value" id="complaint-id-display">Loading...</div>
         </div>
 
         <div class="info-row">
             <div class="info-item">
                 <div class="info-icon"><i data-lucide="calendar-days"></i></div>
-                <div><small>Date & Time</small><strong>16 May 2025, 11:30 AM</strong></div>
+                <div><small>Date & Time</small><strong id="current-date-time">Loading...</strong></div>
             </div>
             <div class="info-item">
                 <div class="info-icon"><i data-lucide="shield-check"></i></div>
@@ -409,9 +410,38 @@
     </main>
 
     <script>
-        lucide.createIcons();
-        // આ બ્રાઉઝરમાં Complaint ID સેવ કરી દેશે
-        localStorage.setItem("myComplaintID", "CMP001");
+        // 1. Function to generate a unique random Complaint ID (e.g., CMP-7A3D9)
+        function generateUniqueComplaintID() {
+            const characters = 'ABCDEF0123456789';
+            let randomPart = '';
+            for (let i = 0; i < 5; i++) {
+                randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return `CMP-${randomPart}`;
+        }
+
+        // 2. Function to format current date and time dynamically
+        function formatCurrentDateTime() {
+            const now = new Date();
+            const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+            return now.toLocaleString('en-US', options);
+        }
+
+        // Runs automatically when the webpage finished loading
+        window.addEventListener('DOMContentLoaded', () => {
+            // Generate unique complaint ID
+            const uniqueID = generateUniqueComplaintID();
+
+            // Display dynamic values inside HTML elements
+            document.getElementById('complaint-id-display').innerText = uniqueID;
+            document.getElementById('current-date-time').innerText = formatCurrentDateTime();
+
+            // Save the unique ID to the browser's localStorage
+            localStorage.setItem("myComplaintID", uniqueID);
+
+            // Initialize Lucide icons
+            lucide.createIcons();
+        });
     </script>
 </body>
 
