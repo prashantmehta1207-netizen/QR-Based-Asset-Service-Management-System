@@ -318,7 +318,16 @@
     </main>
 
     <script>
+        // Initialize Lucide icons
         lucide.createIcons();
+
+        // Automatically pre-fill the input box if a saved ID exists in localStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedID = localStorage.getItem("myComplaintID");
+            if (savedID) {
+                document.getElementById("complaintIdInput").value = savedID;
+            }
+        });
 
         function checkStatus() {
             var inputVal = document.getElementById("complaintIdInput").value.trim().toUpperCase();
@@ -329,20 +338,21 @@
             var s1 = document.getElementById("step1");
             var s2 = document.getElementById("step2");
 
-            // બ્રાઉઝરમાં સ્ટોર થયેલો સાચો ID મેળવો
+            // Fetch the dynamically generated ID from local storage
             var savedID = localStorage.getItem("myComplaintID");
 
-            // પહેલા બધું ક્લીન કરો
-            s1.className = "step"; s2.className = "step";
+            // Reset UI states before evaluation
+            s1.className = "step";
+            s2.className = "step";
             trackingBox.style.display = "none";
             errorMsg.style.display = "none";
 
-            // સિક્યોરિટી ચેક: નાખેલો ID અને બ્રાઉઝરનો ID સરખા હોવા જોઈએ
-            if (inputVal === savedID && inputVal === "CMP001") {
+            // Security & validation check: matches input with device specific storage
+            if (savedID && inputVal === savedID.toUpperCase()) {
                 trackingBox.style.display = "block";
                 displayId.innerText = inputVal;
 
-                // (Pending/In Progress )
+                // Update timeline status to (Pending/In Progress)
                 s1.className = "step done";
                 s2.className = "step current";
             } else {
