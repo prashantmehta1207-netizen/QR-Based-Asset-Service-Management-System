@@ -423,21 +423,16 @@
     </main>
 
     <script>
-        function formatCurrentDateTime() {
-            const now = new Date();
-            const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-            return now.toLocaleString('en-US', options);
-        }
+        lucide.createIcons();
 
-        window.addEventListener('DOMContentLoaded', () => {
-            // Pulls the unique tracking ID created on the form submission page
-            const savedID = localStorage.getItem("myComplaintID") || "AP-UNKNOWN";
+        // Safely fetch ID and handle exceptions cleanly
+        const savedID = localStorage.getItem("myComplaintID");
+        document.getElementById('complaint-id-display').innerText = savedID ? savedID : "No ID Found";
 
-            document.getElementById('complaint-id-display').innerText = savedID;
-            document.getElementById('current-date-time').innerText = formatCurrentDateTime();
-
-            lucide.createIcons();
-        });
+        // Precise localization formatter
+        const now = new Date();
+        const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+        document.getElementById('current-date-time').innerText = now.toLocaleString('en-US', options);
     </script>
 </body>
 
