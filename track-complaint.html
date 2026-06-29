@@ -135,11 +135,27 @@
             border-radius: 20px;
             font-weight: 800;
             font-size: 14px;
+            text-transform: uppercase;
         }
 
         .badge-pending {
             background: #fef3c7;
             color: #d97706;
+        }
+
+        .badge-assigned {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .badge-repair {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .badge-resolved {
+            background: #dcfce7;
+            color: #15803d;
         }
 
         .timeline {
@@ -192,7 +208,7 @@
             color: #9ca3af;
         }
 
-        /* Classes managed via JavaScript */
+        /* Status colors */
         .step.done .step-icon {
             background: #0f7a35;
             color: white;
@@ -268,7 +284,7 @@
 
         <div class="search-container">
             <input type="text" id="complaintIdInput" class="search-input" placeholder="Enter Your Complaint ID" />
-            <button class="track-btn" onclick="checkStatus()">
+            <button class="track-btn" id="trackBtn" onclick="checkStatus()">
                 <i data-lucide="search"></i> Track
             </button>
         </div>
@@ -278,7 +294,7 @@
         <div id="trackingBox" class="tracking-box">
             <div class="status-header">
                 <h3>Complaint ID: <span id="displayId"></span></h3>
-                <span id="statusBadge" class="status-badge badge-pending">IN PROGRESS</span>
+                <span id="statusBadge" class="status-badge">PENDING</span>
             </div>
 
             <div class="timeline">
@@ -294,7 +310,7 @@
                     <div class="step-icon"><i data-lucide="user-check"></i></div>
                     <div class="step-info">
                         <h3>Technician Assigned</h3>
-                        <p>A technician has been assigned and is reviewing the Asset AC001.</p>
+                        <p>A technician has been assigned and is reviewing the Asset.</p>
                     </div>
                 </div>
 
@@ -318,48 +334,130 @@
     </main>
 
     <script>
-        // Initialize Lucide icons
         lucide.createIcons();
 
-        // Automatically pre-fill the input box if a saved ID exists in localStorage
+        // નવું લોજિક: લિંકમાંથી ID ઓટોમેટીક પકડવા માટે
         window.addEventListener('DOMContentLoaded', () => {
+            // ચેક કરશે કે લિંકમાં ?id= ભરેલું છે કે નહીં
+            const urlParams = new URLSearchParams(window.location.search);
+            const idFromUrl = urlParams.get('id');
             const savedID = localStorage.getItem("myComplaintID");
-            if (savedID) {
+
+            if (idFromUrl) {
+                // જો ઈમેલની લિંક પરથી આવ્યો હોય તો તે ID મુકશે
+                document.getElementById("complaintIdInput").value = idFromUrl.trim().toUpperCase();
+                checkStatus(); // આપોઆપ સ્ટેટસ સર્ચ કરી લેશે
+            } else if (savedID) {
+                // જો લોકલ ડિવાઇસ પરથી ફોર્મ ભર્યું હોય તો તે ID મુકશે
                 document.getElementById("complaintIdInput").value = savedID;
             }
         });
 
-        function checkStatus() {
-            var inputVal = document.getElementById("complaintIdInput").value.trim().toUpperCase();
-            var trackingBox = document.getElementById("trackingBox");
-            var errorMsg = document.getElementById("errorMsg");
-            var displayId = document.getElementById("displayId");
+        async function checkStatus() {
+            const inputVal = document.getElementById("complaintIdInput").value.trim().toUpperCase();
+            const trackingBox = document.getElementById("trackingBox");
+            const errorMsg = document.getElementById("errorMsg");
+            const displayId = document.getElementById("displayId");
+            const statusBadge = document.getElementById("statusBadge");
+            const trackBtn = document.getElementById("trackBtn");
 
-            var s1 = document.getElementById("step1");
-            var s2 = document.getElementById("step2");
+            const s1 = document.getElementById("step1");
+            const s2 = document.getElementById("step2");
+            const s3 = document.getElementById("step3");
+            const s4 = document.getElementById("step4");
 
-            // Fetch the dynamically generated ID from local storage
-            var savedID = localStorage.getItem("myComplaintID");
-
-            // Reset UI states before evaluation
-            s1.className = "step";
-            s2.className = "step";
+            const steps = [s1, s2, s3, s4];
+            steps.forEach(s => s.className = "step");
             trackingBox.style.display = "none";
             errorMsg.style.display = "none";
 
-            // Security & validation check: matches input with device specific storage
-            if (savedID && inputVal === savedID.toUpperCase()) {
-                trackingBox.style.display = "block";
-                displayId.innerText = inputVal;
-
-                // Update timeline status to (Pending/In Progress)
-                s1.className = "step done";
-                s2.className = "step current";
-            } else {
-                errorMsg.innerText = "Access Denied! You can only track complaints raised from this device with a valid ID.";
+            if (!inputVal) {
+                errorMsg.innerText = "Please enter a valid Complaint ID.";
                 errorMsg.style.display = "block";
+                return;
+            }
+
+            trackBtn.disabled = true;
+            trackBtn.innerText = "Searching...";
+
+            try {
+                if (window.getDocs && window.collection && window.db && window.query && window.where) {
+                    const q = window.query(window.collection(window.db, "complaints"), window.where("complaintId", "==", inputVal));
+                    const querySnapshot = await window.getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        let complaintData = null;
+                        querySnapshot.forEach((doc) => {
+                            complaintData = doc.data();
+                        });
+
+                        const currentStatus = complaintData.status || "Pending";
+
+                        trackingBox.style.display = "block";
+                        displayId.innerText = inputVal;
+                        statusBadge.innerText = currentStatus;
+                        statusBadge.className = "status-badge";
+
+                        if (currentStatus === "Pending") {
+                            statusBadge.classList.add("badge-pending");
+                            s1.className = "step current";
+                        } else if (currentStatus === "Assigned") {
+                            statusBadge.classList.add("badge-assigned");
+                            s1.className = "step done";
+                            s2.className = "step current";
+                        } else if (currentStatus === "Under Repair") {
+                            statusBadge.classList.add("badge-repair");
+                            s1.className = "step done";
+                            s2.className = "step done";
+                            s3.className = "step current";
+                        } else if (currentStatus === "Resolved") {
+                            statusBadge.classList.add("badge-resolved");
+                            s1.className = "step done";
+                            s2.className = "step done";
+                            s3.className = "step done";
+                            s4.className = "step done";
+                        }
+                    } else {
+                        errorMsg.innerText = "Complaint ID not found! Please check and try again.";
+                        errorMsg.style.display = "block";
+                    }
+                } else {
+                    errorMsg.innerText = "Firebase system error. Retrying...";
+                    errorMsg.style.display = "block";
+                }
+            } catch (error) {
+                console.error("Tracking error:", error);
+                errorMsg.innerText = "Something went wrong while fetching data.";
+                errorMsg.style.display = "block";
+            } finally {
+                trackBtn.disabled = false;
+                trackBtn.innerHTML = '<i data-lucide="search"></i> Track';
+                lucide.createIcons();
             }
         }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrne4zTG5Z5wrpps3N6WTX__WJREJ_r1I",
+            authDomain: "akshayapatraassetmanagement.firebaseapp.com",
+            projectId: "akshayapatraassetmanagement",
+            storageBucket: "akshayapatraassetmanagement.firebasestorage.app",
+            messagingSenderId: "746715439733",
+            appId: "1:746715439733:web:e1567c9a04da24398b0e3c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.query = query;
+        window.where = where;
     </script>
 </body>
 
