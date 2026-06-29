@@ -78,8 +78,8 @@
             width: 108px;
             height: 108px;
             border-radius: 50%;
-            border: 7px solid #66b36f;
-            color: #66b36f;
+            border: 7px solid #16a34a;
+            color: #16a34a;
             display: grid;
             place-items: center;
             margin: auto;
@@ -147,13 +147,13 @@
         }
 
         h1 {
-            margin-top: 6px;
+            margin-top: 12px;
             font-size: 30px;
-            color: #000000;
+            color: #16a34a;
         }
 
         .dots {
-            color: #5b8d67;
+            color: #16a34a;
             font-size: 22px;
             letter-spacing: 7px;
             margin: 6px 0 8px;
@@ -161,7 +161,7 @@
 
         .subtitle {
             font-size: 15px;
-            color: #111111;
+            color: #475569;
             margin-bottom: 22px;
         }
 
@@ -176,10 +176,11 @@
             grid-template-columns: 92px 1fr 1.3fr;
             align-items: center;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            border-left: 4px solid #16a34a;
         }
 
         .id-icon {
-            color: #5f6f5e;
+            color: #16a34a;
         }
 
         .id-icon svg {
@@ -192,12 +193,14 @@
             padding-right: 22px;
             text-align: left;
             font-size: 17px;
+            color: #334155;
         }
 
         .id-value {
             font-size: 24px;
             font-weight: 900;
             letter-spacing: 1px;
+            color: #111111;
         }
 
         .info-row {
@@ -231,7 +234,7 @@
             height: 42px;
             border-radius: 50%;
             background: #edf7ee;
-            color: #0f7a35;
+            color: #16a34a;
             display: grid;
             place-items: center;
             flex-shrink: 0;
@@ -269,31 +272,42 @@
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            color: #111111;
             box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+            transition: background 0.2s ease;
         }
 
         .track {
-            background: #0f7a35;
+            background: #16a34a;
             color: #ffffff;
         }
 
+        .track:hover {
+            background: #15803d;
+        }
+
         .home {
-            background: #e5e5e5;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .home:hover {
+            background: #e2e8f0;
         }
 
         .note {
             width: fit-content;
             max-width: 100%;
             margin: auto;
-            background: #dff3df;
-            color: #9b0a0a;
-            padding: 9px 18px;
+            background: #f0fdf4;
+            color: #16a34a;
+            padding: 10px 20px;
             border-radius: 22px;
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 14px;
+            border: 1px solid #bbf7d0;
         }
 
         .note strong {
@@ -374,7 +388,6 @@
         <div class="id-card">
             <div class="id-icon"><i data-lucide="clipboard-list"></i></div>
             <div class="id-label">Complaint ID:</div>
-            <!-- Added ID attribute to dynamically update the value via JavaScript -->
             <div class="id-value" id="complaint-id-display">Loading...</div>
         </div>
 
@@ -410,36 +423,19 @@
     </main>
 
     <script>
-        // 1. Function to generate a unique random Complaint ID (e.g., CMP-7A3D9)
-        function generateUniqueComplaintID() {
-            const characters = 'ABCDEF0123456789';
-            let randomPart = '';
-            for (let i = 0; i < 5; i++) {
-                randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
-            }
-            return `CMP-${randomPart}`;
-        }
-
-        // 2. Function to format current date and time dynamically
         function formatCurrentDateTime() {
             const now = new Date();
             const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
             return now.toLocaleString('en-US', options);
         }
 
-        // Runs automatically when the webpage finished loading
         window.addEventListener('DOMContentLoaded', () => {
-            // Generate unique complaint ID
-            const uniqueID = generateUniqueComplaintID();
+            // Pulls the unique tracking ID created on the form submission page
+            const savedID = localStorage.getItem("myComplaintID") || "AP-UNKNOWN";
 
-            // Display dynamic values inside HTML elements
-            document.getElementById('complaint-id-display').innerText = uniqueID;
+            document.getElementById('complaint-id-display').innerText = savedID;
             document.getElementById('current-date-time').innerText = formatCurrentDateTime();
 
-            // Save the unique ID to the browser's localStorage
-            localStorage.setItem("myComplaintID", uniqueID);
-
-            // Initialize Lucide icons
             lucide.createIcons();
         });
     </script>
