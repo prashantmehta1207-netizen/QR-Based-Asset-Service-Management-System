@@ -15,22 +15,17 @@
         <header class="header">
             <div class="brand">
                 <img src="logo.png" alt="Akshaya Patra Logo" class="logo" />
-
                 <div>
                     <h2 style="color: #16a34a;">Akshaya Patra Complaint Portal</h2>
                     <p>Submit, track and manage complaints professionally.</p>
                 </div>
             </div>
-
             <div class="header-divider"></div>
-
             <div class="welcome-text">
                 <i data-lucide="circle-user-round"></i>
                 <span>Welcome to Akshaya Patra</span>
             </div>
-
             <div class="header-divider"></div>
-
             <span class="badge">
                 <i data-lucide="headphones"></i>
                 Employee Support
@@ -111,14 +106,11 @@
 
                     <div class="form-group full">
                         <label>Priority <span>*</span></label>
-
                         <div class="priority-box">
                             <input type="radio" id="low" name="priority" value="Low" required />
                             <label for="low"><span class="ring green"></span>Low</label>
-
                             <input type="radio" id="medium" name="priority" value="Medium" />
                             <label for="medium"><span class="ring yellow"></span>Medium</label>
-
                             <input type="radio" id="high" name="priority" value="High" />
                             <label for="high"><span class="ring red"></span>High</label>
                         </div>
@@ -126,11 +118,10 @@
                 </div>
 
                 <div class="actions">
-                    <button type="submit" class="submit-btn">
+                    <button type="submit" class="submit-btn" id="submitBtn">
                         <i data-lucide="send"></i>
                         Submit Complaint
                     </button>
-
                     <button type="reset" class="reset-btn">
                         <i data-lucide="rotate-ccw"></i>
                         Clear
@@ -141,14 +132,10 @@
 
         <aside>
             <div class="card side-card">
-                <h2 class="section-title">
-                    <i data-lucide="image"></i>
-                    Photo Preview
-                </h2>
-
+                <h2 class="section-title"><i data-lucide="image"></i> Photo Preview</h2>
                 <div class="preview">
                     <img id="photoPreview" alt="Complaint photo preview" style="display: none;" />
-                    <i data-lucide="image" class="empty-icon"></i>
+                    <i data-lucide="image" class="empty-icon" id="emptyIcon"></i>
                     <span id="previewText">No photo selected</span>
                 </div>
             </div>
@@ -157,13 +144,11 @@
                 style="margin-top: 20px; background: #f8fafc; border-left: 4px solid #16a34a; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                 <h2 class="section-title"
                     style="color: #1e293b; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                    <i data-lucide="help-circle"></i>
-                    Need Help?
+                    <i data-lucide="help-circle"></i> Need Help?
                 </h2>
                 <p style="font-size: 14px; color: #64748b; margin: 0 0 15px 0; line-height: 1.5;">
                     If you face any issues while submitting the form, feel free to contact employee support.
                 </p>
-
                 <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #334155;">
                     <p style="margin: 0; display: flex; align-items: center; gap: 8px;">
                         <strong><i data-lucide="phone" style="width: 14px; height: 14px; color: #16a34a;"></i>
@@ -184,8 +169,7 @@
                 style="margin-top: 20px; background: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                 <h2 class="section-title"
                     style="color: #991b1b; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                    <i data-lucide="shield-alert" style="color: #ef4444;"></i>
-                    Safety Guidelines
+                    <i data-lucide="shield-alert" style="color: #ef4444;"></i> Safety Guidelines
                 </h2>
                 <ul
                     style="padding-left: 18px; margin: 0; font-size: 13px; color: #7f1d1d; line-height: 1.6; font-weight: 500;">
@@ -200,101 +184,10 @@
         </aside>
     </main>
 
-    <script>
-        lucide.createIcons();
-
-        const form = document.getElementById("complaintForm");
-        const photoInput = document.getElementById("photo");
-        const photoPreview = document.getElementById("photoPreview");
-        const previewText = document.getElementById("previewText");
-
-        // Photo preview logic
-        photoInput.addEventListener("change", function () {
-            const file = this.files[0];
-
-            if (!file) {
-                photoPreview.style.display = "none";
-                previewText.style.display = "block";
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                photoPreview.src = event.target.result;
-                photoPreview.style.display = "block";
-                previewText.style.display = "none";
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // Function to generate sequential, non-repeating Ticket ID (CMP-0001, CMP-0002, etc.)
-        function generateSequentialTicketNumber() {
-            let currentCounter = localStorage.getItem("complaintCounter");
-
-            if (currentCounter === null) {
-                currentCounter = 0;
-            } else {
-                currentCounter = parseInt(currentCounter, 10);
-            }
-
-            currentCounter += 1;
-            localStorage.setItem("complaintCounter", currentCounter);
-
-            const paddedNumber = String(currentCounter).padStart(4, '0');
-            return `CMP-${paddedNumber}`;
-        }
-
-        // Form Submission Logic with Firebase Integration
-        form.addEventListener("submit", async function (event) {
-            event.preventDefault();
-
-            try {
-                const complaintId = generateSequentialTicketNumber();
-                localStorage.setItem("myComplaintID", complaintId);
-
-                // Create data object for Firebase
-                const complaintData = {
-                    complaintId: complaintId,
-                    userName: document.getElementById("userName").value,
-                    phone: document.getElementById("phone").value,
-                    category: document.getElementById("category").value,
-                    email: document.getElementById("email").value,
-                    title: document.getElementById("title").value,
-                    description: document.getElementById("description").value,
-                    priority: document.querySelector('input[name="priority"]:checked')?.value || "",
-                    status: "Pending",
-                    createdAt: new Date().toISOString()
-                };
-
-                // Save data to Firebase Firestore
-                if (window.addDoc && window.collection && window.db) {
-                    await window.addDoc(
-                        window.collection(window.db, "complaints"),
-                        complaintData
-                    );
-                } else {
-                    console.warn("Firebase methods not fully loaded yet, but saving locally.");
-                }
-
-                // Redirect to success.html after data is saved successfully
-                window.location.href = "success.html";
-            } catch (error) {
-                console.error("Submission error:", error);
-                alert("Something went wrong while submitting. Please try again.");
-            }
-        });
-    </script>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import {
-            getFirestore,
-            collection,
-            addDoc,
-            getDocs
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Firebase configuration retrieved from the first code block
         const firebaseConfig = {
             apiKey: "AIzaSyCrne4zTG5Z5wrpps3N6WTX__WJREJ_r1I",
             authDomain: "akshayapatraassetmanagement.firebaseapp.com",
@@ -304,15 +197,115 @@
             appId: "1:746715439733:web:e1567c9a04da24398b0e3c"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Export functions to global window scope so that the normal script tag above can use them
-        window.db = db;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.getDocs = getDocs;
+        lucide.createIcons();
+
+        const form = document.getElementById("complaintForm");
+        const submitBtn = document.getElementById("submitBtn");
+        const photoInput = document.getElementById("photo");
+        const photoPreview = document.getElementById("photoPreview");
+        const previewText = document.getElementById("previewText");
+        const emptyIcon = document.getElementById("emptyIcon");
+
+        photoInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    photoPreview.src = event.target.result;
+                    photoPreview.style.display = "block";
+                    previewText.style.display = "none";
+                    emptyIcon.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function generateSequentialTicketNumber() {
+            let currentCounter = localStorage.getItem("complaintCounter");
+            if (currentCounter === null) {
+                currentCounter = 0;
+            } else {
+                currentCounter = parseInt(currentCounter, 10);
+            }
+            currentCounter += 1;
+            localStorage.setItem("complaintCounter", currentCounter);
+            return `CMP-${String(currentCounter).padStart(4, '0')}`;
+        }
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending Email & Submitting...";
+
+            try {
+                const complaintId = generateSequentialTicketNumber();
+                localStorage.setItem("myComplaintID", complaintId);
+
+                const userEmail = document.getElementById("email").value;
+                const userName = document.getElementById("YourName").value;
+
+                // const trackingUrl = `track-complaint.html?id=${complaintId}`;
+                const trackingUrl = `http://127.0.0.1:5500/track-complaint.html?id=${complaintId}`;
+                const detailMessage = `A new complaint titled '${document.getElementById("title").value}' has been raised in the ${document.getElementById("category").value} department.`;
+
+                const complaintData = {
+                    complaintId: complaintId,
+                    userName: userName,
+                    phone: document.getElementById("phone").value,
+                    category: document.getElementById("category").value,
+                    email: userEmail,
+                    title: document.getElementById("title").value,
+                    description: document.getElementById("description").value,
+                    priority: document.querySelector('input[name="priority"]:checked')?.value || "",
+                    status: "Pending",
+                    createdAt: new Date().toISOString()
+                };
+
+                // 1. Firebase Firestore Submission
+                await addDoc(collection(db, "complaints"), complaintData);
+
+                // 2. EmailJS API Call with fallback parameters
+                const emailData = {
+                    service_id: "service_7rnrnu6",
+                    template_id: "template_s351i7k",
+                    user_id: "QCStuPpBUWUOTOCRE",
+                    template_params: {
+                        user_email: userEmail,         // For dashboard {{user_email}}
+                        reply_to: userEmail,           // Backwards compatibility
+                        to_email: userEmail,           // Safety fallback
+                        from_name: userName,           // For dashboard {{from_name}}
+                        user_name: userName,           // Fallback
+                        complaint_id: complaintId,     // For dashboard {{complaint_id}}
+                        live_tracking_url: trackingUrl, // For dashboard {{live_tracking_url}}
+                        message: detailMessage         // For dashboard {{message}}
+                    }
+                };
+
+                const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(emailData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error("EmailJS API Error: " + errorText);
+                }
+
+                window.location.href = "success.html";
+
+            } catch (error) {
+                console.error("Submission error details:", error);
+                alert("Error occurred: " + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i data-lucide="send"></i> Submit Complaint';
+            }
+        });
     </script>
 </body>
 
