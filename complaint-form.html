@@ -246,17 +246,34 @@
 
                 const userEmail = document.getElementById("email").value;
                 const userName = document.getElementById("YourName").value;
+                const selectedCategory = document.getElementById("category").value;
 
-                // const trackingUrl = `track-complaint.html?id=${complaintId}`;
-                // const trackingUrl = `http://127.0.0.1:5500/track-complaint.html?id=${complaintId}`;
+                // 👑 1. અહીં તમારા મેઈન ADMIN નું અસલી ઈમેલ આઈડી લખો (જેને બધા મેઇલ જશે)
+                const adminEmail = "nikunj.bhavsar@akshayapatra.org";
+
+                // 🛠️ 2. અહીં દરેક ડિપાર્ટમેન્ટના હેડના અસલી ઈમેલ આઈડી સેટ કરી દો
+                let headEmail = "service.tapfguj@gmail.com"; // Default/Fallback email
+
+                if (selectedCategory === "Electrical") {
+                    headEmail = "alpeshkumar.raval@akshayapatra.org";
+                } else if (selectedCategory === "IT") {
+                    headEmail = "manoj.pandya@akshayapatra.org";
+                } else if (selectedCategory === "Kitchen/Production") {
+                    headEmail = "himanshu.singh@akshayapatra.org";
+                } else if (selectedCategory === "Maintenance") {
+                    headEmail = "pratap.rathod@akshayapatra.org";
+                } else if (selectedCategory === "Other") {
+                    headEmail = "nikunj.bhavsar@akshayapatra.org ,rahulkumar99876543@gmail.com";
+                }
+
                 const trackingUrl = `https://prashantmehta1207-netizen.github.io/QR-Based-Asset-Service-Management-System/track-complaint.html?id=${complaintId}`;
-                const detailMessage = `A new complaint titled '${document.getElementById("title").value}' has been raised in the ${document.getElementById("category").value} department.`;
+                const detailMessage = `A new complaint titled '${document.getElementById("title").value}' has been raised in the ${selectedCategory} department.`;
 
                 const complaintData = {
                     complaintId: complaintId,
                     userName: userName,
                     phone: document.getElementById("phone").value,
-                    category: document.getElementById("category").value,
+                    category: selectedCategory,
                     email: userEmail,
                     title: document.getElementById("title").value,
                     description: document.getElementById("description").value,
@@ -268,20 +285,22 @@
                 // 1. Firebase Firestore Submission
                 await addDoc(collection(db, "complaints"), complaintData);
 
-                // 2. EmailJS API Call with fallback parameters
+                // 2. EmailJS API Call with dynamic template parameters
                 const emailData = {
                     service_id: "service_7rnrnu6",
                     template_id: "template_s351i7k",
                     user_id: "QCStuPpBUWUOTOCRE",
                     template_params: {
-                        user_email: userEmail,         // For dashboard {{user_email}}
-                        reply_to: userEmail,           // Backwards compatibility
-                        to_email: userEmail,           // Safety fallback
-                        from_name: userName,           // For dashboard {{from_name}}
-                        user_name: userName,           // Fallback
-                        complaint_id: complaintId,     // For dashboard {{complaint_id}}
-                        live_tracking_url: trackingUrl, // For dashboard {{live_tracking_url}}
-                        message: detailMessage         // For dashboard {{message}}
+                        user_email: userEmail,
+                        head_email: headEmail,   // નવો વેરિયેબલ (ડિપાર્ટમેન્ટ હેડ માટે)
+                        admin_email: adminEmail, // નવો વેરિયેબલ (એડમિન માટે)
+                        reply_to: userEmail,
+                        to_email: userEmail,
+                        from_name: userName,
+                        user_name: userName,
+                        complaint_id: complaintId,
+                        live_tracking_url: trackingUrl,
+                        message: detailMessage
                     }
                 };
 
