@@ -336,8 +336,8 @@
     <script>
         lucide.createIcons();
 
-        // 🛠️ ગ્લોબલ ફંક્શન જેથી બટન ક્લિક અને ઓટો-લોડ બંને વખતે પરફેક્ટ ચાલે
-        async function checkStatus() {
+        // 🛠️ વિન્ડો લેવલ ગ્લોબલ ફંક્શન બનાવ્યું
+        window.checkStatus = async function () {
             const inputVal = document.getElementById("complaintIdInput").value.trim().toUpperCase();
             const trackingBox = document.getElementById("trackingBox");
             const errorMsg = document.getElementById("errorMsg");
@@ -351,8 +351,7 @@
             const s4 = document.getElementById("step4");
 
             const steps = [s1, s2, s3, s4];
-            
-            // રિસેટ સેટિંગ્સ
+
             steps.forEach(s => s.className = "step");
             errorMsg.style.display = "none";
 
@@ -363,11 +362,10 @@
                 return;
             }
 
-            // ⏳ જો હજુ Firebase લોડ ન થયું હોય તો થોડીવાર રાહ જોવાની કન્ડિશન
             if (!window.db || !window.getDocs) {
                 trackBtn.disabled = true;
                 trackBtn.innerText = "Loading System...";
-                setTimeout(checkStatus, 500); // ૫૦૦ મિલીસેકન્ડ પછી ફરી ટ્રાય કરશે
+                setTimeout(window.checkStatus, 500);
                 return;
             }
 
@@ -426,6 +424,9 @@
                 lucide.createIcons();
             }
         }
+
+        // શોર્ટહેન્ડ ગ્લોબલ રેફરન્સ ટ્રેક રાખવા
+        function checkStatus() { window.checkStatus(); }
     </script>
 
     <script type="module">
@@ -444,23 +445,22 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // વિન્ડો લેવલ પર કનેક્ટ કરો
         window.db = db;
         window.collection = collection;
         window.getDocs = getDocs;
         window.query = query;
         window.where = where;
 
-        // 🔗 Firebase સેટ થઈ જાય પછી જ URL ચેક કરી આઈડી ઓટો-લોડ કરશે
         const urlParams = new URLSearchParams(window.location.search);
         const idFromUrl = urlParams.get('id');
         const savedID = localStorage.getItem("myComplaintID");
 
         if (idFromUrl) {
             document.getElementById("complaintIdInput").value = idFromUrl.trim().toUpperCase();
-            checkStatus(); 
+            window.checkStatus();
         } else if (savedID) {
             document.getElementById("complaintIdInput").value = savedID;
+            window.checkStatus(); // ⚡ સુધારો: localStorage માંથી ઓટોમેટિક સ્ટેટસ લોડ કરી દેશે
         }
     </script>
 </body>
