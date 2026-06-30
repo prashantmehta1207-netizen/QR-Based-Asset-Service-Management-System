@@ -186,7 +186,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrne4zTG5Z5wrpps3N6WTX__WJREJ_r1I",
@@ -223,16 +223,20 @@
             }
         });
 
-        function generateSequentialTicketNumber() {
-            let currentCounter = localStorage.getItem("complaintCounter");
-            if (currentCounter === null) {
-                currentCounter = 0;
-            } else {
-                currentCounter = parseInt(currentCounter, 10);
-            }
-            currentCounter += 1;
-            localStorage.setItem("complaintCounter", currentCounter);
-            return `CMP-${String(currentCounter).padStart(4, '0')}`;
+        // 🚀 Firestore કાઉન્ટરમાંથી મિલીસેકન્ડની અંદર ગ્લોબલ સિક્વન્સ નંબર મેળવવાનું ફંક્શન
+        async function getNextTicketNumber() {
+            const counterRef = doc(db, "counters", "complaint_counter");
+
+            return await runTransaction(db, async (transaction) => {
+                const counterDoc = await transaction.get(counterRef);
+                if (!counterDoc.exists()) {
+                    throw new Error("Counter document does not exist! Please create it in Firestore.");
+                }
+
+                const nextNum = counterDoc.data().currentValue + 1;
+                transaction.update(counterRef, { currentValue: nextNum });
+                return `CMP-${String(nextNum).padStart(4, '0')}`;
+            });
         }
 
         form.addEventListener("submit", async function (event) {
@@ -241,18 +245,19 @@
             submitBtn.textContent = "Sending Email & Submitting...";
 
             try {
-                const complaintId = generateSequentialTicketNumber();
+                // 🔐 ડેટાબેઝ સેફ કાઉન્ટર આઈડી રન થશે
+                const complaintId = await getNextTicketNumber();
                 localStorage.setItem("myComplaintID", complaintId);
 
                 const userEmail = document.getElementById("email").value;
                 const userName = document.getElementById("YourName").value;
                 const selectedCategory = document.getElementById("category").value;
 
-                // 👑 1. અહીં તમારા મેઈન ADMIN નું અસલી ઈમેલ આઈડી લખો (જેને બધા મેઇલ જશે)
+                // 👑 1. મેઈન ADMIN નું સાચું આઈડી
                 const adminEmail = "nikunj.bhavsar@akshayapatra.org";
 
-                // 🛠️ 2. અહીં દરેક ડિપાર્ટમેન્ટના હેડના અસલી ઈમેલ આઈડી સેટ કરી દો
-                let headEmail = "service.tapfguj@gmail.com"; // Default/Fallback email
+                // 🛠️ 2. ડિપાર્ટમેન્ટ હેડના સેટ કરેલા સાચા આઈડી
+                let headEmail = "service.tapfguj@gmail.com";
 
                 if (selectedCategory === "Electrical") {
                     headEmail = "alpeshkumar.raval@akshayapatra.org";
@@ -263,7 +268,7 @@
                 } else if (selectedCategory === "Maintenance") {
                     headEmail = "pratap.rathod@akshayapatra.org";
                 } else if (selectedCategory === "Other") {
-                    headEmail = "nikunj.bhavsar@akshayapatra.org ,rahulkumar99876543@gmail.com";
+                    headEmail = "nikunj.bhavsar@akshayapatra.org, rahulkumar99876543@gmail.com";
                 }
 
                 const trackingUrl = `https://prashantmehta1207-netizen.github.io/QR-Based-Asset-Service-Management-System/track-complaint.html?id=${complaintId}`;
@@ -282,19 +287,18 @@
                     createdAt: new Date().toISOString()
                 };
 
-                // 1. Firebase Firestore Submission
+                // 1. Firebase Firestore માં ડેટા સબમિટ
                 await addDoc(collection(db, "complaints"), complaintData);
 
-                // 2. EmailJS API Call with dynamic template parameters
+                // 2. EmailJS API Call
                 const emailData = {
                     service_id: "service_7rnrnu6",
                     template_id: "template_s351i7k",
                     user_id: "QCStuPpBUWUOTOCRE",
                     template_params: {
                         user_email: userEmail,
-                        head_email: headEmail,   // નવો વેરિયેબલ (ડિપાર્ટમેન્ટ હેડ માટે)
-                        admin_email: adminEmail, // નવો વેરિયેબલ (એડમિન માટે)
-                        reply_to: userEmail,
+                        head_email: headEmail,
+                        admin_email: adminEmail,
                         to_email: userEmail,
                         from_name: userName,
                         user_name: userName,
