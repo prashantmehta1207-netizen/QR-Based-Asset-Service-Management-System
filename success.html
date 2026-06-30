@@ -425,11 +425,22 @@
     <script>
         lucide.createIcons();
 
-        // Safely fetch ID and handle exceptions cleanly
+        // 🔗 LocalStorage માંથી નવો સેવ થયેલો સીરીયલ ID મેળવો
         const savedID = localStorage.getItem("myComplaintID");
-        document.getElementById('complaint-id-display').innerText = savedID ? savedID : "No ID Found";
+        const idDisplay = document.getElementById("complaint-id-display");
+        const trackBtn = document.querySelector(".btn.track");
 
-        // Precise localization formatter
+        if (savedID) {
+            // સ્ક્રીન પર નવો ID (e.g., CMP-0001) પ્રિન્ટ કરો
+            idDisplay.innerText = savedID;
+            // 🚀 ટ્રેકિંગ બટનની લિંક ડાયરેક્ટ ID સાથે સેટ કરો
+            trackBtn.href = `track-complaint.html?id=${savedID}`;
+        } else {
+            idDisplay.innerText = "N/A";
+            trackBtn.href = `track-complaint.html`;
+        }
+
+        // તારીખ અને સમય સેટ કરવાનું લોજિક
         const now = new Date();
         const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
         document.getElementById('current-date-time').innerText = now.toLocaleString('en-US', options);
