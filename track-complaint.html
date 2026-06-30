@@ -336,23 +336,7 @@
     <script>
         lucide.createIcons();
 
-        // નવું લોજિક: લિંકમાંથી ID ઓટોમેટીક પકડવા માટે
-        window.addEventListener('DOMContentLoaded', () => {
-            // ચેક કરશે કે લિંકમાં ?id= ભરેલું છે કે નહીં
-            const urlParams = new URLSearchParams(window.location.search);
-            const idFromUrl = urlParams.get('id');
-            const savedID = localStorage.getItem("myComplaintID");
-
-            if (idFromUrl) {
-                // જો ઈમેલની લિંક પરથી આવ્યો હોય તો તે ID મુકશે
-                document.getElementById("complaintIdInput").value = idFromUrl.trim().toUpperCase();
-                checkStatus(); // આપોઆપ સ્ટેટસ સર્ચ કરી લેશે
-            } else if (savedID) {
-                // જો લોકલ ડિવાઇસ પરથી ફોર્મ ભર્યું હોય તો તે ID મુકશે
-                document.getElementById("complaintIdInput").value = savedID;
-            }
-        });
-
+        // 🛠️ ગ્લોબલ ફંક્શન જેથી બટન ક્લિક અને ઓટો-લોડ બંને વખતે પરફેક્ટ ચાલે
         async function checkStatus() {
             const inputVal = document.getElementById("complaintIdInput").value.trim().toUpperCase();
             const trackingBox = document.getElementById("trackingBox");
@@ -367,13 +351,23 @@
             const s4 = document.getElementById("step4");
 
             const steps = [s1, s2, s3, s4];
+            
+            // રિસેટ સેટિંગ્સ
             steps.forEach(s => s.className = "step");
-            trackingBox.style.display = "none";
             errorMsg.style.display = "none";
 
             if (!inputVal) {
+                trackingBox.style.display = "none";
                 errorMsg.innerText = "Please enter a valid Complaint ID.";
                 errorMsg.style.display = "block";
+                return;
+            }
+
+            // ⏳ જો હજુ Firebase લોડ ન થયું હોય તો થોડીવાર રાહ જોવાની કન્ડિશન
+            if (!window.db || !window.getDocs) {
+                trackBtn.disabled = true;
+                trackBtn.innerText = "Loading System...";
+                setTimeout(checkStatus, 500); // ૫૦૦ મિલીસેકન્ડ પછી ફરી ટ્રાય કરશે
                 return;
             }
 
@@ -381,52 +375,49 @@
             trackBtn.innerText = "Searching...";
 
             try {
-                if (window.getDocs && window.collection && window.db && window.query && window.where) {
-                    const q = window.query(window.collection(window.db, "complaints"), window.where("complaintId", "==", inputVal));
-                    const querySnapshot = await window.getDocs(q);
+                const q = window.query(window.collection(window.db, "complaints"), window.where("complaintId", "==", inputVal));
+                const querySnapshot = await window.getDocs(q);
 
-                    if (!querySnapshot.empty) {
-                        let complaintData = null;
-                        querySnapshot.forEach((doc) => {
-                            complaintData = doc.data();
-                        });
+                if (!querySnapshot.empty) {
+                    let complaintData = null;
+                    querySnapshot.forEach((doc) => {
+                        complaintData = doc.data();
+                    });
 
-                        const currentStatus = complaintData.status || "Pending";
+                    const currentStatus = complaintData.status || "Pending";
 
-                        trackingBox.style.display = "block";
-                        displayId.innerText = inputVal;
-                        statusBadge.innerText = currentStatus;
-                        statusBadge.className = "status-badge";
+                    trackingBox.style.display = "block";
+                    displayId.innerText = inputVal;
+                    statusBadge.innerText = currentStatus;
+                    statusBadge.className = "status-badge";
 
-                        if (currentStatus === "Pending") {
-                            statusBadge.classList.add("badge-pending");
-                            s1.className = "step current";
-                        } else if (currentStatus === "Assigned") {
-                            statusBadge.classList.add("badge-assigned");
-                            s1.className = "step done";
-                            s2.className = "step current";
-                        } else if (currentStatus === "Under Repair") {
-                            statusBadge.classList.add("badge-repair");
-                            s1.className = "step done";
-                            s2.className = "step done";
-                            s3.className = "step current";
-                        } else if (currentStatus === "Resolved") {
-                            statusBadge.classList.add("badge-resolved");
-                            s1.className = "step done";
-                            s2.className = "step done";
-                            s3.className = "step done";
-                            s4.className = "step done";
-                        }
-                    } else {
-                        errorMsg.innerText = "Complaint ID not found! Please check and try again.";
-                        errorMsg.style.display = "block";
+                    if (currentStatus === "Pending") {
+                        statusBadge.classList.add("badge-pending");
+                        s1.className = "step current";
+                    } else if (currentStatus === "Assigned") {
+                        statusBadge.classList.add("badge-assigned");
+                        s1.className = "step done";
+                        s2.className = "step current";
+                    } else if (currentStatus === "Under Repair") {
+                        statusBadge.classList.add("badge-repair");
+                        s1.className = "step done";
+                        s2.className = "step done";
+                        s3.className = "step current";
+                    } else if (currentStatus === "Resolved") {
+                        statusBadge.classList.add("badge-resolved");
+                        s1.className = "step done";
+                        s2.className = "step done";
+                        s3.className = "step done";
+                        s4.className = "step done";
                     }
                 } else {
-                    errorMsg.innerText = "Firebase system error. Retrying...";
+                    trackingBox.style.display = "none";
+                    errorMsg.innerText = "Complaint ID not found! Please check and try again.";
                     errorMsg.style.display = "block";
                 }
             } catch (error) {
                 console.error("Tracking error:", error);
+                trackingBox.style.display = "none";
                 errorMsg.innerText = "Something went wrong while fetching data.";
                 errorMsg.style.display = "block";
             } finally {
@@ -453,11 +444,24 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // વિન્ડો લેવલ પર કનેક્ટ કરો
         window.db = db;
         window.collection = collection;
         window.getDocs = getDocs;
         window.query = query;
         window.where = where;
+
+        // 🔗 Firebase સેટ થઈ જાય પછી જ URL ચેક કરી આઈડી ઓટો-લોડ કરશે
+        const urlParams = new URLSearchParams(window.location.search);
+        const idFromUrl = urlParams.get('id');
+        const savedID = localStorage.getItem("myComplaintID");
+
+        if (idFromUrl) {
+            document.getElementById("complaintIdInput").value = idFromUrl.trim().toUpperCase();
+            checkStatus(); 
+        } else if (savedID) {
+            document.getElementById("complaintIdInput").value = savedID;
+        }
     </script>
 </body>
 
