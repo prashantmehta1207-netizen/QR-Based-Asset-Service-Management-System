@@ -238,6 +238,36 @@
             color: #111111;
         }
 
+        /* RE-OPEN ACTION SECTION */
+        .reopen-container {
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 1px dashed #e5e7eb;
+            display: none;
+            text-align: center;
+        }
+
+        .reopen-btn {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #fca5a5;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.05);
+        }
+
+        .reopen-btn:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
         @media (max-width: 600px) {
             body {
                 padding: 20px;
@@ -330,13 +360,23 @@
                     </div>
                 </div>
             </div>
+
+            <!-- DYNAMIC RE-OPEN COMPLAINT BUTTON INTERFACE -->
+            <div class="reopen-container" id="reopenContainer">
+                <button class="reopen-btn" id="reopenBtn" onclick="triggerReopen()">
+                    <i data-lucide="rotate-ccw"></i> Not Solved? Re-open Complaint
+                </button>
+            </div>
         </div>
     </main>
 
     <script>
         lucide.createIcons();
 
-        // 🛠️ વિન્ડો લેવલ ગ્લોબલ ફંક્શન બનાવ્યું
+        // ગ્લોબલ રેફરન્સ હોલ્ડ કરવા માટે વેરીએબલ
+        let activeFirestoreDocId = null;
+        let currentComplaintObject = null;
+
         window.checkStatus = async function () {
             const inputVal = document.getElementById("complaintIdInput").value.trim().toUpperCase();
             const trackingBox = document.getElementById("trackingBox");
@@ -344,6 +384,7 @@
             const displayId = document.getElementById("displayId");
             const statusBadge = document.getElementById("statusBadge");
             const trackBtn = document.getElementById("trackBtn");
+            const reopenContainer = document.getElementById("reopenContainer");
 
             const s1 = document.getElementById("step1");
             const s2 = document.getElementById("step2");
@@ -354,6 +395,9 @@
 
             steps.forEach(s => s.className = "step");
             errorMsg.style.display = "none";
+            reopenContainer.style.display = "none";
+            activeFirestoreDocId = null;
+            currentComplaintObject = null;
 
             if (!inputVal) {
                 trackingBox.style.display = "none";
@@ -377,12 +421,12 @@
                 const querySnapshot = await window.getDocs(q);
 
                 if (!querySnapshot.empty) {
-                    let complaintData = null;
                     querySnapshot.forEach((doc) => {
-                        complaintData = doc.data();
+                        activeFirestoreDocId = doc.id;
+                        currentComplaintObject = doc.data();
                     });
 
-                    const currentStatus = complaintData.status || "Pending";
+                    const currentStatus = currentComplaintObject.status || "Pending";
 
                     trackingBox.style.display = "block";
                     displayId.innerText = inputVal;
@@ -392,7 +436,7 @@
                     if (currentStatus === "Pending") {
                         statusBadge.classList.add("badge-pending");
                         s1.className = "step current";
-                    } else if (currentStatus === "Assigned") {
+                    } else if (currentStatus === "Assigned" || currentStatus === "In Progress") {
                         statusBadge.classList.add("badge-assigned");
                         s1.className = "step done";
                         s2.className = "step current";
@@ -407,6 +451,9 @@
                         s2.className = "step done";
                         s3.className = "step done";
                         s4.className = "step done";
+
+                        // જો ટિકિટ Resolved હોય તો જ Re-open બટન બતાવવું
+                        reopenContainer.style.display = "block";
                     }
                 } else {
                     trackingBox.style.display = "none";
@@ -425,13 +472,64 @@
             }
         }
 
-        // શોર્ટહેન્ડ ગ્લોબલ રેફરન્સ ટ્રેક રાખવા
+        // RE-OPEN COMPLAINT TRANSACTION CONTROLLER
+        window.triggerReopen = async function () {
+            if (!activeFirestoreDocId || !currentComplaintObject) return;
+
+            const reason = prompt("Enter reason for re-opening the ticket (Optional):");
+            const reopenBtn = document.getElementById("reopenBtn");
+
+            reopenBtn.disabled = true;
+            reopenBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Re-opening Ticket...`;
+
+            const currentTimestamp = new Date().toISOString();
+            const resetStatus = "Pending"; // રી-ઓપન થતાં જ ફરી સ્ટેટસ પેન્ડિંગ થઈ જશે
+
+            const newHistoryLog = {
+                status: "In Progress", // ટાઈમલાઈનમાં પ્રોગ્રેસ અથવા રી-ઓપન બતાવવા
+                time: currentTimestamp,
+                remarks: reason || "Complaint re-opened by user."
+            };
+
+            try {
+                const docRef = window.doc(window.db, "complaints", activeFirestoreDocId);
+
+                let updatePayload = {
+                    status: resetStatus,
+                    updatedAt: currentTimestamp,
+                    history: window.arrayUnion(newHistoryLog)
+                };
+
+                // સેફ્ટી કન્ડિશન: જો ડેટાબેઝમાં જૂની હિસ્ટ્રી એરે ન હોય
+                if (!currentComplaintObject.history || currentComplaintObject.history.length === 0) {
+                    const originalCreationLog = {
+                        status: "Pending",
+                        time: currentComplaintObject.createdAt || currentTimestamp
+                    };
+                    updatePayload.history = [originalCreationLog, newHistoryLog];
+                }
+
+                await window.updateDoc(docRef, updatePayload);
+
+                alert("Your complaint has been successfully re-opened. Admin is notified!");
+                window.checkStatus(); // ડેટા રિફ્રેશ કરવા માટે
+            } catch (error) {
+                console.error("Error re-opening document: ", error);
+                alert("Failed to re-open ticket. Please try again.");
+            } finally {
+                reopenBtn.disabled = false;
+                reopenBtn.innerHTML = '<i data-lucide="rotate-ccw"></i> Not Solved? Re-open Complaint';
+                lucide.createIcons();
+            }
+        }
+
         function checkStatus() { window.checkStatus(); }
+        function triggerReopen() { window.triggerReopen(); }
     </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrne4zTG5Z5wrpps3N6WTX__WJREJ_r1I",
@@ -450,6 +548,9 @@
         window.getDocs = getDocs;
         window.query = query;
         window.where = where;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.arrayUnion = arrayUnion;
 
         const urlParams = new URLSearchParams(window.location.search);
         const idFromUrl = urlParams.get('id');
@@ -460,7 +561,7 @@
             window.checkStatus();
         } else if (savedID) {
             document.getElementById("complaintIdInput").value = savedID;
-            window.checkStatus(); // ⚡ સુધારો: localStorage માંથી ઓટોમેટિક સ્ટેટસ લોડ કરી દેશે
+            window.checkStatus();
         }
     </script>
 </body>
